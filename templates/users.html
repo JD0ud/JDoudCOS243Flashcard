@@ -1,0 +1,11 @@
+<body>
+    <h1>Trivia</h1>
+    <h2>Users</h2>
+
+    {% for user in users %}
+        <p><strong>{{user.name}}</strong></p>
+        <p>{{user.email}}</p>
+        <p>{{user.set_id}}</p>
+        <br>
+    {% endfor %}
+</body>

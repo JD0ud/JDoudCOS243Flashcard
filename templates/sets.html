@@ -1,0 +1,10 @@
+<body>
+    <h1>Trivia</h1>
+    <h2>Sets</h2>
+
+    {% for set in sets %}
+        <p><strong>{{set.name}}</strong></p>
+        <p>{{set.user_id}}</p>
+        <br>
+    {% endfor %}
+</body>

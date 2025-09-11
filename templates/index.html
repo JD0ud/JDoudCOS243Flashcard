@@ -1,0 +1,13 @@
+<head>
+    <link href="{{url_for('static', path='/css/styles.css')}}" rel="stylesheet">
+    <script src="{{url_for('static', path='/scripts/site.js')}}"></script>
+</head>
+<body>
+    <h1>Trivia</h1>
+
+    {% for card in cards %}
+        <a href="{{url_for('get_card', card_id=card.id)}}"><strong>{{card.question}}</strong></a>
+        <p>{{card.answer}}</p>
+        <br>
+    {% endfor %}
+</body>
