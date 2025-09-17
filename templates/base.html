@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        {% block head %}
+        <link href="{{ url_for('static', path='/css/styles.css') }}" rel="stylesheet">
+        <title>{% block title %}{% endblock %} - Flashcard App</title>
+        {% endblock %}
+    </head>
+    <body>
+        <header>
+            <nav>
+                <a href="{{url_for('root')}}">Home</a>
+                <a href="{{url_for('getRandomCard')}}">Play</a>
+                <a href="{{url_for('getSets')}}">Sets</a>
+                <a href="{{url_for('getUsers')}}">Users</a>
+            </nav>
+        </header>
+        <section id="content">{% block content %}{% endblock %}</section>
+        <br>
+        <footer>
+            <p>Sample footer text</p>
+        </footer>
+    </body>
+</html>

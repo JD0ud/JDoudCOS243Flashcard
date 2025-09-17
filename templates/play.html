@@ -1,4 +1,16 @@
-<h1>Trivia</h1>
+<head>
+    {% extends "base.html" %}
+    {% block title %}Random Flashcard{% endblock %}
+    {% block head %}
+        {{ super() }}
+    {% endblock %}
+</head>
+<body>
+    {% block content %}
+    <h1>Trivia</h1>
 
-<p><strong>{{card.question}}</strong></p>
-<p>{{card.answer}}</p>
+    <p><strong>{{card.question}}</strong></p>
+    <p>{{card.answer}}</p>
+
+    {% endblock %}
+</body>

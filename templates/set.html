@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+{% block title %}View Set{% endblock %}
+{% block head %}
+    {{ super() }}
+{% endblock %}
+
+{% block content %}
+
+<p><strong>{{set.name}}</strong></p>
+    {% import "macros/card_macro.html" as card_macro %}
+    {% for card in set.cards %}
+        {{ card_macro.card(card) }}
+    {% endfor %}
+
+{% endblock %}

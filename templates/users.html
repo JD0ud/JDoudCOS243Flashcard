@@ -1,4 +1,12 @@
+<head>
+    {% extends "base.html" %}
+    {% block title %}Random Flashcard{% endblock %}
+    {% block head %}
+        {{ super() }}
+    {% endblock %}
+</head>
 <body>
+    {% block content %}
     <h1>Trivia</h1>
     <h2>Users</h2>
 
@@ -8,4 +16,5 @@
         <p>{{user.set_id}}</p>
         <br>
     {% endfor %}
+    {% endblock %}
 </body>
