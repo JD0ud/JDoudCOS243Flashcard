@@ -5,7 +5,7 @@ from fastapi import Request
 from fastapi.responses import HTMLResponse
 from fastapi.staticfiles import StaticFiles
 from contextlib import asynccontextmanager
-from db.session import create_db_and_tables, SessionDep
+from .db.session import create_db_and_tables, SessionDep, get_session
 from sqlmodel import Session, Field, SQLModel, create_engine, select, Relationship
 from random import randint
 
@@ -91,8 +91,8 @@ async def getSetByID(session: SessionDep, set_id:int, request:Request):
     return templates.TemplateResponse(request=request, name="/set.html", context={"set":set})
 
 @app.post("/sets/add")
-async def create_set(session: SessionDep, set:Set):
-    db_set = Set(name=set.name)
+async def create_set(session: SessionDep, name:str):
+    db_set = Set(name=name)
     session.add(db_set)
     session.commit()
     session.refresh(db_set)
