@@ -10,9 +10,10 @@
         <header>
             <nav>
                 <a href="{{url_for('root')}}">Home</a>
-                <a href="{{url_for('getRandomCard')}}">Play</a>
+                <a href="{{url_for('getCards')}}">Play</a>
                 <a href="{{url_for('getSets')}}">Sets</a>
                 <a href="{{url_for('getUsers')}}">Users</a>
+                <!-- <a href="{{url_for('getAddCard')}}">Add</a> -->
             </nav>
         </header>
         <section id="content">{% block content %}{% endblock %}</section>

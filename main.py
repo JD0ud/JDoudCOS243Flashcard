@@ -1,13 +1,16 @@
 from fastapi import FastAPI
 from pydantic import BaseModel
-from fastapi.templating import Jinja2Templates
-from fastapi import Request
-from fastapi.responses import HTMLResponse
+# from fastapi.templating import Jinja2Templates
+from .core.templates import templates
+from fastapi import Request, Form
+from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.staticfiles import StaticFiles
 from contextlib import asynccontextmanager
 from .db.session import create_db_and_tables, SessionDep, get_session
+from .db.models import Card, Set, User
 from sqlmodel import Session, Field, SQLModel, create_engine, select, Relationship
 from random import randint
+from .routers import cards, sets
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -18,29 +21,30 @@ async def lifespan(app: FastAPI):
 app = FastAPI(lifespan=lifespan)
 app.mount("/static", StaticFiles(directory="static"), name="static")
 
-templates = Jinja2Templates(directory = "templates")
+app.include_router(cards.router)
+app.include_router(sets.router)
 
-# groceryList = ["bread", "milk", "eggs", "ice cream", "more bread"]
+# templates = Jinja2Templates(directory = "templates")
 
-class Set(SQLModel, table = True):
-    id: int | None = Field(default = None, primary_key = True)
-    name: str
-    cards: list["Card"] = Relationship(back_populates = "set")
+# class Set(SQLModel, table = True):
+#     id: int | None = Field(default = None, primary_key = True)
+#     name: str
+#     cards: list["Card"] = Relationship(back_populates = "set")
     # user_id: int
 
-class Card(SQLModel, table = True):
-    id:int | None = Field(default = None, primary_key = True)
-    question:str
-    answer:str
-    set_id: int | None = Field(default = None, foreign_key = "set.id")
-    set: Set | None = Relationship(back_populates = "cards")
-    incorrect_guesses: int
+# class Card(SQLModel, table = True):
+#     id:int | None = Field(default = None, primary_key = True)
+#     question:str
+#     answer:str
+#     set_id: int | None = Field(default = None, foreign_key = "set.id")
+#     set: Set | None = Relationship(back_populates = "cards")
+#     incorrect_guesses: int
 
-class User(BaseModel):
-    id: int
-    name: str
-    email: str
-    set_id: int
+# class User(BaseModel):
+#     id: int
+#     name: str
+#     email: str
+#     set_id: int
 
 class Deck(BaseModel):
     id: int
@@ -62,12 +66,11 @@ userList = [User(id = 1, name = "Monty123", email = "caerbannog@gmail.com", set_
             User(id = 2, name = "helpicantthinkofaname", email = "helpicantthinkofanemail@yahoo.com", set_id = 1)]
 
 @app.get("/", response_class = HTMLResponse)
-async def root(request:Request):
-    return templates.TemplateResponse(request = request, name = "index.html", context = {"cards": cardList})
-
-# @app.get("/items")
-# async def getGroceryList():
-#     return groceryList
+async def root(session: SessionDep, request:Request):
+    # return templates.TemplateResponse(request = request, name = "index.html", context = {"cards": cardList})
+    cards = session.exec(select(Card).order_by(Card.id)).all()
+    sets = session.exec(select(Set).order_by(Set.id)).all()
+    return templates.TemplateResponse(request=request, name="/index.html", context={"cards":cards,"sets":sets})
 
 @app.get("/cards")
 async def getCards(q:str=""):
@@ -76,22 +79,23 @@ async def getCards(q:str=""):
         if q in card.question: searchResults.append(card)
     return searchResults
 
-@app.get("/cards/{card_id}", name = "get_card", response_class = HTMLResponse)
-async def getCardByID(card_id:int, request:Request):
-    for card in cardList:
-        if card.id == card_id: return templates.TemplateResponse(request = request, name = "card.html", context = {"card": cardList[card_id - 1]})
-    return None
+@app.get("/cards/{card_id}", response_class = HTMLResponse)
+async def getCardByID(card_id:int, request:Request, session:SessionDep):
+    # for card in cardList:
+        # if card.id == card_id: return templates.TemplateResponse(request = request, name = "card.html", context = {"card": cardList[card_id - 1]})
+    card = session.exec(select(Card).where(Card.id == card_id))
+    return templates.TemplateResponse(request = request, name = "card.html", context = {"card":card})
 
-@app.get("/sets/{set_id}", name = "get_set", response_class = HTMLResponse)
+@app.get("/sets/{set_id}", response_class = HTMLResponse)
 async def getSetByID(session: SessionDep, set_id:int, request:Request):
     # for set in setList:
     #     if set.id == set_id: return templates.TemplateResponse(request = request, name = "set.html", context = {"set": cardList[card_id - 1]})
     # return None
     set = session.exec(select(Set).where(Set.id == set_id)).first()
-    return templates.TemplateResponse(request=request, name="/set.html", context={"set":set})
+    return templates.TemplateResponse(request=request, name="/sets/sets.html", context={"set":set})
 
 @app.post("/sets/add")
-async def create_set(session: SessionDep, name:str):
+async def addSet(session: SessionDep, name:str = Form(...)):
     db_set = Set(name=name)
     session.add(db_set)
     session.commit()
@@ -99,14 +103,35 @@ async def create_set(session: SessionDep, name:str):
     return db_set
 
 @app.post("/card/add")
-async def addCard(session: SessionDep, card:Card):
-    # cardList.append(card)
-    # return cardList
-    db_card = Card(question=card.question, answer=card.answer, set_id=card.set_id, incorrect_guesses=card.incorrect_guesses)
+async def addCard(session: SessionDep, question: str = Form(...), answer: str = Form(...), set_id: int = Form(...)):
+    db_card = Card(question=question, answer=answer, set_id=set_id, incorrect_guesses=0)    
     session.add(db_card)
     session.commit()
     session.refresh(db_card)
-    return db_card
+    return RedirectResponse(url=f"/cards/{db_card.id}", status_code=302)
+
+@app.get("/{card_id}/edit")
+def edit_card(request: Request, session:SessionDep, card_id:int):
+    card = session.exec(select(Card).where(Card.id==card_id)).first()
+    sets = session.exec(select(Set)).all()
+    return templates.TemplateResponse(request=request, name="/cards/add.html", context={"card":card, "sets":sets})
+
+@app.get("/{set_id}/edit")
+def edit_set(request: Request, session:SessionDep, set_id:int):
+    set = session.exec(select(Set).where(Set.id==set_id)).first()
+    sets = session.exec(select(Set)).all()
+    return templates.TemplateResponse(request=request, name="/sets/add.html", context={"set":set, "sets":sets})
+
+@app.get("/cards/{card_id}/delete")
+def deleteCard(request:Request, session:SessionDep, card_id:int):
+    card = session.query(Card).filter(Card.id == card_id).first()
+    session.delete(card)
+    session.commit()
+
+def deleteSet(request:Request, session:SessionDep, set_id:int):
+    set = session.query(Set).filter(Set.id == set_id).first()
+    session.delete(set)
+    session.commit()
 
 @app.get("/play", response_class = HTMLResponse)
 async def getRandomCard(request:Request):
@@ -115,9 +140,8 @@ async def getRandomCard(request:Request):
 @app.get("/sets", response_class = HTMLResponse)
 async def getSets(session: SessionDep, request:Request):
     sets = session.exec(select(Set).order_by(Set.name)).all()
-    return templates.TemplateResponse(request=request, name="/sets.html", context={"sets":sets})
-    # return templates.TemplateResponse(request = request, name = "sets.html", context = {"sets": setList})
+    return templates.TemplateResponse(request=request, name="/sets/sets.html", context={"sets":sets})
 
 @app.get("/users", response_class = HTMLResponse)
 async def getUsers(request:Request):
-    return templates.TemplateResponse(request = request, name = "users.html", context = {"users": userList})
+    return templates.TemplateResponse(request = request, name = "/users/users.html", context = {"users": userList})

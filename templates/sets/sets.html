@@ -1,0 +1,19 @@
+<head>
+    {% extends "base.html" %}
+    {% block title %}Random Flashcard{% endblock %}
+    {% block head %}
+        {{ super() }}
+    {% endblock %}
+</head>
+<body>
+    {% block content %}
+    <h1>Trivia</h1>
+    <h2>Sets</h2>
+
+    {% for set in sets %}
+        <a href="{{url_for('getSetByID', set_id=set.id)}}"><strong>{{set.name}}</strong></a>
+        <p>{{set.cards[set]}}</p>
+        <br><br>
+    {% endfor %}
+    {% endblock %}
+</body>
