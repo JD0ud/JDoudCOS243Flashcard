@@ -11,20 +11,7 @@
     <!-- {{ card_macro.card(card) }}
     {% endfor %} -->
 
-    <a href="{{url_for('edit_card')}}"></a>
-    <!-- <form action = "{{url_for('edit_card')}}" method="post">
-        Question: <input type="text" name="question"><br>
-        Answer: <input type="text" name="answer"><br>
-        Set: <select name="set_id">
-            <option name="" value=""></option>
-            {% for set in sets %}     
-                {% if set.id == set_id %}                   
-                    <option selected="selected" name="{{set.name}}" value="{{set.id}}" >{{set.name}}</option>
-                {% else %}
-                    <option name="{{set.name}}" value="{{set.id}}">{{set.name}}</option>
-                {% endif %}
-            {% endfor %}
-        </select>
-    </form> -->
+    <a href="{{card_id}}/edit">test</a>
+    <p>test</p>
 
     {% endblock %}

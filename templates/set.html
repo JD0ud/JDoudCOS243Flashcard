@@ -10,6 +10,11 @@
     {% import "macros/card_macro.html" as card_macro %}
     {% for card in set.cards %}
         {{ card_macro.card(card) }}
+        <a href="{{url_for('edit_card', card_id=card.id)}}">Edit</a>
+        <br>
     {% endfor %}
+    <br>
+    <a href="{{url_for('getAddCard')}}">+ Add Card</a>
+    <a href="{{url_for('getAddSet')}}">+ Add Set</a>
 
 {% endblock %}

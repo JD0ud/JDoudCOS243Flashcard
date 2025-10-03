@@ -1,0 +1,54 @@
+<head>
+    <script src="{{url_for('static', path='/scripts/site.js')}}"></script>
+</head>
+
+{% extends "base.html" %}
+{% block title %}View Flash Cards{% endblock %}
+{% block head %}
+    {{ super() }}
+{% endblock %}
+{% block content %}
+
+<body>
+    <h1>Trivia</h1>
+
+    {% if not username or username is none %}
+    <section>
+        <form action="/playWithFriends" method="post">
+            <label>Enter your username:</label>
+            <input type="text" id="username" name="username">
+            <button type="submit">Login</button>
+        </form>
+    </section>
+    {% else %}
+    <section class="chat">
+        <ul id="messages"></ul>
+        <form action="" onsubmit="sendMessage(event)">
+            <input type="text" id="messageText">
+            <button>> Send ></button>
+        </form>
+    </section>
+    {% endif %}
+    <script>
+        function getCookie(name) {
+            const value = `; ${document.cookie}`;
+            const parts = value.split(`; ${name}=`);
+            if (parts.length === 2) return parts.pop().split(';').shift();
+        }
+
+        var client_id = getCookie('username');
+        var ws = new WebSocket(`ws://localhost:8000/ws/${client_id}`);
+        ws.onmessage = function(event) {
+            console.log(event.data);
+        }
+
+        function sendMessage(event) {
+            var input = document.getElementById("messageText");
+            ws.send(input.value);
+            input.value = '';
+            event.preventDefault();
+        }
+    </script>
+</body>
+
+{% endblock %}

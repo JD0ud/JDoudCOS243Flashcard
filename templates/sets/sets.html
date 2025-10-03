@@ -9,10 +9,10 @@
     {% block content %}
     <h1>Trivia</h1>
     <h2>Sets</h2>
-
+    {{cards}}
     {% for set in sets %}
         <a href="{{url_for('getSetByID', set_id=set.id)}}"><strong>{{set.name}}</strong></a>
-        <p>{{set.cards[set]}}</p>
+        
         <br><br>
     {% endfor %}
     {% endblock %}
