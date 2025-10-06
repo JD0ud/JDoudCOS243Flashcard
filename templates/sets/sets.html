@@ -6,14 +6,16 @@
     {% endblock %}
 </head>
 <body>
-    {% block content %}
-    <h1>Trivia</h1>
-    <h2>Sets</h2>
-    {{cards}}
-    {% for set in sets %}
-        <a href="{{url_for('getSetByID', set_id=set.id)}}"><strong>{{set.name}}</strong></a>
-        
-        <br><br>
-    {% endfor %}
-    {% endblock %}
+    <section class="content">
+        {% block content %}
+        <h1>Sets</h1>
+        <div id="sets">
+            {{cards}}
+            {% for set in sets %}
+                <a href="{{url_for('getSetByID', set_id=set.id)}}" class="set"><strong>{{set.name}}</strong></a>
+                <br><br>
+            {% endfor %}
+            {% endblock %}
+        </div>
+    </section>
 </body>

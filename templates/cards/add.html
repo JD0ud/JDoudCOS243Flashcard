@@ -13,9 +13,11 @@
     <h1>Trivia</h1>
 
     <form action="/card/add" method="post">
-        Question: <input type="text" name="question"><br>
-        Answer: <input type="text" name="answer"><br>
-        Set: <select name="set_id">
+        <div id="qna">
+            <input type="text" name="question" placeholder="Question...">
+            <input type="text" name="answer" placeholder="Answer...">
+        </div>
+        <label>Set: </label><select name="set_id">
             <option name="" value=""></option>
             {% for set in sets %}     
                 {% if set.id == set_id %}                   
@@ -25,7 +27,7 @@
                 {% endif %}
             {% endfor %}
         </select>
-        <input type="submit" value="Submit">
+        <button type="submit" value="Submit">Submit</button>
     </form>
 </body>
 
