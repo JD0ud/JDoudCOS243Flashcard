@@ -11,14 +11,15 @@
         <header>
             <nav>
                 <a href="{{url_for('root')}}">Home</a>
-                <a href="{{url_for('getCards')}}">Play</a>
+                <a href="{{url_for('getPlayWithFriends')}}">Play With Friends</a>
                 <a href="{{url_for('getSets')}}">Sets</a>
                 <a href="{{url_for('getUsers')}}">Users</a>
             </nav>
         </header>
         <section class="content">{% block content %}{% endblock %}</section>
         <footer>
-            <p></p><a href="https://github.com/JD0ud/JDoudCOS243Flashcard" target="_blank">GitHub Repository</a>
+            <p>Jonathan Doud | COS 243 Fall 2025</p>
+            <a href="https://github.com/JD0ud/JDoudCOS243Flashcard" target="_blank">GitHub Repository</a>
         </footer>
     </body>
 </html>

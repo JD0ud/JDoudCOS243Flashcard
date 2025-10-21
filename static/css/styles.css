@@ -52,6 +52,50 @@ p {
     overflow-wrap: anywhere;
 }
 
+#mainpageH1 {
+    font-size: 7em;
+    margin: 0 auto;
+    text-align: center;
+}
+
+#mainpageH2 {
+    font-size: 22pt;
+    margin: 0 auto;
+    text-align: center;
+}
+
+div#pwf {
+    width: 100%;
+    display: flex;
+    flex-flow: column nowrap;
+    gap: 20px;
+}
+
+div#pwf > p {
+    font-size: 40pt;
+    font-weight: bold;
+    color: var(--green);
+    margin: 100px auto 0;
+    text-align: center;
+}
+
+div#pwf > a {
+    font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
+    font-size: 26pt;
+    color: var(--green);
+    text-decoration: none;
+    padding: 20px 25px;
+    margin: 0 auto;
+    background-color: #eee;
+    border-radius: 15px;
+    transition: linear 0.1s;
+}
+
+div#pwf > a:hover {
+    color: white;
+    background-color: var(--green);
+}
+
 #setName {
     font-size: 16pt;
 }
@@ -91,7 +135,7 @@ p {
     justify-content: space-between;
     background-color: #eee;
     width: 300px;
-    height: 400px;
+    min-height: 400px;
     padding: 5px 15px;
     margin: 20px;
     border-radius: 20px;
@@ -218,12 +262,42 @@ label {
     font-weight: normal;
 }
 
+#pwfGame {
+    display: grid;
+    grid-template: auto / 1fr 1fr 1fr;
+    grid-gap: 20px;
+    height: 85%;
+}
+
+#pwfGame > section {
+    padding: 0 15px;
+    border-radius: 15px;
+}
+
+.gameCards {
+    background-color: #eee;
+}
+
+.messages {
+    background-color: #eee;
+}
+
+#messages {
+    list-style: none;
+}
+
 footer {
     min-height: 200px;
     background-color: var(--green);
     margin: 0;
     padding: 20px;
     flex-grow: 0;
+}
+
+footer > p {
+    font-size: 16pt;
+    font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
+    color: white;
 }
 
 footer > a {
@@ -246,5 +320,19 @@ footer > a:hover {
 
     #qna {
         grid-template: 1fr 1fr / auto;
+    }
+}
+
+@media screen and (max-width: 1000px) {
+    #pwfGame {
+        display: flex;
+        flex-flow: column wrap;
+        gap: 20px;
+    }
+}
+
+@media screen and (max-width: 1610px) {
+    #messageText {
+        margin-bottom: 10px;
     }
 }

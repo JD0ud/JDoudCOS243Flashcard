@@ -14,10 +14,10 @@
 
     <form action="/card/add" method="post">
         <div id="qna">
-            <input type="text" name="question" placeholder="Question...">
-            <input type="text" name="answer" placeholder="Answer...">
+            <input type="text" name="question" placeholder="Question..." required>
+            <input type="text" name="answer" placeholder="Answer..." required>
         </div>
-        <label>Set: </label><select name="set_id">
+        <label>Set: </label><select name="set_id" required>
             <option name="" value=""></option>
             {% for set in sets %}     
                 {% if set.id == set_id %}                   

@@ -7,8 +7,7 @@
 </head>
 <body>
     {% block content %}
-    <h1>Trivia</h1>
-    <h2>Users</h2>
+    <h1>Users</h1>
 
     {% for user in users %}
         <p><strong>{{user.name}}</strong> | {{user.email}}</p>

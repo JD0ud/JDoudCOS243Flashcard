@@ -9,7 +9,9 @@ from .db.session import create_db_and_tables, SessionDep, get_session
 from .db.models import Card, Set, User
 from sqlmodel import Session, Field, SQLModel, create_engine, select, Relationship, update
 from random import randint
-from .routers import cards, sets
+# from routers import cards, sets
+import random
+from sqlalchemy.sql.expression import func
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -20,8 +22,8 @@ async def lifespan(app: FastAPI):
 app = FastAPI(lifespan=lifespan)
 app.mount("/static", StaticFiles(directory="static"), name="static")
 
-app.include_router(cards.router)
-app.include_router(sets.router)
+# app.include_router(cards.router)
+# app.include_router(sets.router)
 
 class ConnectionManager:
     def __init__(self):
@@ -37,6 +39,9 @@ class ConnectionManager:
     async def broadcast(self, message:str):
         for connection in self.active_connections:
             await connection.send_text(message)
+
+    async def send_personal_message(self, message:str, websocket:WebSocket):
+        await websocket.send_text(message)
         
 manager = ConnectionManager()
 
@@ -135,11 +140,13 @@ async def getRandomCard(request:Request):
 
 @app.get("/playWithFriends", response_class=HTMLResponse)
 async def getPlayWithFriends(request:Request, session:SessionDep, response_class = HTMLResponse):
-    return templates.TemplateResponse(request = request, name = "playWithFriends.html")
+    cards = session.exec(select(Card).order_by(Card.id))
+    return templates.TemplateResponse(request = request, name = "playWithFriends.html", context = {"cards":cards})
 
 @app.post("/playWithFriends", response_class=HTMLResponse)
 async def login(request:Request, session:SessionDep, response_class = HTMLResponse, username:str = Form(...)):
-    response = templates.TemplateResponse(request = request, name = "playWithFriends.html", context = {"username": username})
+    cards = session.exec(select(Card).order_by(Card.id))
+    response = templates.TemplateResponse(request = request, name = "playWithFriends.html", context = {"username": username, "cards":cards})
     response.set_cookie(key="username", value=username, httponly=False)
     return response
 
@@ -149,7 +156,32 @@ async def websocket_endpoint(websocket:WebSocket, client_id:str, session:Session
     try:
         while True:
             data = await websocket.receive_json()
-            await manager.broadcast(f"{client_id} says: {data['payload']['message']}")
+            if 'message' in data['payload']:
+                await manager.broadcast(f"{client_id} | {data['payload']['message']}")
+            elif 'command' in data['payload']:
+                if ".loadplayer" in data['payload']['command']:
+                    if data['payload']['command'] == ".loadplayer":
+                        await manager.broadcast(f".loadplayer {client_id}")
+                    else:
+                        await manager.broadcast(f".loadplayer {client_id} | {data['payload']['command'][12:]}")
+                elif data['payload']['command'][:12] == '.getquestion':
+                    try:
+                        int(data['payload']['command'][13])
+                        card = session.exec(select(Card).where(Card.id==int(data['payload']['command'][13:]))).first()
+                    except ValueError:
+                        setsPassed = data['payload']['command'][13:]
+                        print(setsPassed.split(','))
+                        sets = session.exec(select(Set).where(Set.name.in_(setsPassed.split(','))).order_by(Set.id)).all()
+                        setIDs = []
+                        for i in sets:
+                            setIDs.append(i.id)
+                        print(setIDs)
+                        card = session.exec(select(Card).where(Card.set_id.in_(setIDs)).order_by(func.random())).first()
+                    await manager.broadcast(f".getquestion {card.question}")
+                    await manager.broadcast(f".getanswer {card.answer}")
+                elif data['payload']['command'][:12] == ".firstanswer":
+                    await manager.broadcast(f"{data['payload']['command']}")
+                else: await manager.broadcast(f"{data['payload']['command']}")
     except WebSocketDisconnect:
         manager.disconnect(websocket)
         await manager.broadcast(f"Client #{client_id} left the chat")
