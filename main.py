@@ -1,12 +1,12 @@
 from fastapi import FastAPI
 from pydantic import BaseModel
-from .core.templates import templates
+from core.templates import templates
 from fastapi import Request, Form, WebSocket, WebSocketDisconnect, Cookie
 from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.staticfiles import StaticFiles
 from contextlib import asynccontextmanager
-from .db.session import create_db_and_tables, SessionDep, get_session
-from .db.models import Card, Set, User
+from db.session import create_db_and_tables, SessionDep, get_session
+from db.models import Card, Set, User
 from sqlmodel import Session, Field, SQLModel, create_engine, select, Relationship, update
 from random import randint
 # from routers import cards, sets
