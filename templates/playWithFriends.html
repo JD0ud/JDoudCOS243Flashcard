@@ -90,7 +90,8 @@
         }
 
         var client_id = getCookie('username');
-        var ws = new WebSocket(`ws://localhost:8000/ws/${client_id}`);
+        //var ws = new WebSocket(`ws://localhost:8000/ws/${client_id}`);
+        var ws = new WebSocket(`wss://${window.location.host}/ws/${client_id}`);
         ws.onmessage = function(event) {
             if (event.data.includes(".loadplayer")) {
                 updatePlayers(event.data.substring(12));
